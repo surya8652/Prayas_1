@@ -10,6 +10,7 @@ interface Props {
   notifications: NotificationItem[];
   onMarkAllRead: () => void;
   backendConnected: boolean;
+  pendingRequestsCount?: number;
   children: React.ReactNode;
 }
 
@@ -19,21 +20,34 @@ export const MainLayout: React.FC<Props> = ({
   notifications,
   onMarkAllRead,
   backendConnected,
+  pendingRequestsCount = 2,
   children,
 }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <div className="min-h-screen bg-slate-50/50 text-slate-900 dark:bg-slate-950 dark:text-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
       <Navbar
         unreadCount={unreadCount}
         onOpenNotifications={() => setDrawerOpen(true)}
         backendConnected={backendConnected}
+        onNavigateLanding={() => onSelectTab("landing")}
+        onToggleMobileSidebar={() => setMobileSidebarOpen((prev) => !prev)}
       />
+
       <div className="flex flex-1">
-        <Sidebar activeTab={activeTab} onSelectTab={onSelectTab} />
-        <main className="flex-1 p-6 max-w-7xl mx-auto w-full">
+        <Sidebar
+          activeTab={activeTab}
+          onSelectTab={onSelectTab}
+          pendingRequestsCount={pendingRequestsCount}
+          unreadNotifsCount={unreadCount}
+          isOpenMobile={mobileSidebarOpen}
+          onCloseMobile={() => setMobileSidebarOpen(false)}
+        />
+
+        <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 transition-all">
           {children}
         </main>
       </div>

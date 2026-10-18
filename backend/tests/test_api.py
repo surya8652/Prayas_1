@@ -20,6 +20,34 @@ def test_health_check(client):
     assert response.status_code == 200
     assert response.get_json()["status"] == "healthy"
 
+def test_design_system_endpoint(client):
+    response = client.get("/api/design-system")
+    assert response.status_code == 200
+    data = response.get_json()
+    assert "tokens" in data
+    assert "colors" in data["tokens"]
+    assert data["tokens"]["colors"]["primary_text"]["hex"] == "#0F172A"
+
+def test_admin_overview_endpoint(client):
+    response = client.get("/api/admin/overview")
+    assert response.status_code == 200
+    data = response.get_json()
+    assert "metrics" in data
+    assert "synergy_matrix" in data
+
+def test_notifications_endpoint(client):
+    # Test create notification
+    post_res = client.post("/api/notifications", json={
+        "title": "Test Match Notification",
+        "message": "90% match detected for AI grant.",
+        "type": "match"
+    })
+    assert post_res.status_code == 201
+
+    get_res = client.get("/api/notifications")
+    assert get_res.status_code == 200
+    assert len(get_res.get_json()) >= 1
+
 def test_explainable_matching():
     u1 = User(id=1, name="Prof A", email="a@test.edu", department="Computer Science")
     u1.skills = ["Python", "PyTorch", "NLP"]

@@ -1,5 +1,5 @@
 import React from "react";
-import { Mail, GraduationCap, Sparkles } from "lucide-react";
+import { Mail, GraduationCap, Sparkles, User } from "lucide-react";
 import { Researcher } from "../../types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "../ui/card";
 import { Badge } from "../ui/badge";
@@ -9,17 +9,27 @@ import { DepartmentBadge } from "../common/DepartmentBadge";
 interface Props {
   researcher: Researcher;
   onFindMatches?: (researcher: Researcher) => void;
+  onViewProfile?: (researcher: Researcher) => void;
 }
 
-export const ResearcherCard: React.FC<Props> = ({ researcher, onFindMatches }) => {
+export const ResearcherCard: React.FC<Props> = ({
+  researcher,
+  onFindMatches,
+  onViewProfile,
+}) => {
   return (
-    <Card className="flex flex-col justify-between">
+    <Card className="flex flex-col justify-between text-left">
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
-          <div>
-            <CardTitle>{researcher.name}</CardTitle>
-            <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1">
-              <GraduationCap className="h-3.5 w-3.5 text-indigo-500" />
+          <div className="space-y-1">
+            <button
+              onClick={() => onViewProfile?.(researcher)}
+              className="text-left font-bold text-base text-slate-900 hover:text-indigo-600 transition-colors"
+            >
+              {researcher.name}
+            </button>
+            <div className="flex items-center gap-1.5 text-xs text-slate-500">
+              <GraduationCap className="h-3.5 w-3.5 text-indigo-600" />
               <span>{researcher.designation || researcher.role}</span>
             </div>
           </div>
@@ -33,7 +43,7 @@ export const ResearcherCard: React.FC<Props> = ({ researcher, onFindMatches }) =
       </CardHeader>
 
       <CardContent className="space-y-3">
-        <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
+        <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
           {researcher.bio || "No biography provided yet."}
         </p>
 
@@ -45,9 +55,9 @@ export const ResearcherCard: React.FC<Props> = ({ researcher, onFindMatches }) =
             {researcher.interests.map((interest, idx) => (
               <span
                 key={idx}
-                className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] text-slate-700"
               >
-                {interest}
+                #{interest}
               </span>
             ))}
           </div>
@@ -61,7 +71,7 @@ export const ResearcherCard: React.FC<Props> = ({ researcher, onFindMatches }) =
             {researcher.skills.map((skill, idx) => (
               <span
                 key={idx}
-                className="rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[11px] text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+                className="rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[11px] text-slate-600 font-medium"
               >
                 {skill}
               </span>
@@ -70,26 +80,29 @@ export const ResearcherCard: React.FC<Props> = ({ researcher, onFindMatches }) =
         </div>
       </CardContent>
 
-      <CardFooter className="pt-2 border-t border-slate-100 dark:border-slate-800/60 justify-between">
-        <a
-          href={`mailto:${researcher.email}`}
-          className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+      <CardFooter className="pt-2 border-t border-slate-100 justify-between gap-2">
+        <Button
+          size="sm"
+          variant="ghost"
+          className="text-xs text-slate-600 hover:text-indigo-600 px-2"
+          onClick={() => onViewProfile?.(researcher)}
         >
-          <Mail className="h-3.5 w-3.5" />
-          {researcher.email}
-        </a>
+          View Profile
+        </Button>
 
-        {onFindMatches && (
-          <Button
-            size="sm"
-            variant="outline"
-            className="text-xs gap-1 border-indigo-200 text-indigo-600 hover:bg-indigo-50"
-            onClick={() => onFindMatches(researcher)}
-          >
-            <Sparkles className="h-3 w-3" />
-            Match Projects
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {onFindMatches && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-xs gap-1 border-indigo-200 text-indigo-600 hover:bg-indigo-50"
+              onClick={() => onFindMatches(researcher)}
+            >
+              <Sparkles className="h-3 w-3" />
+              Match Projects
+            </Button>
+          )}
+        </div>
       </CardFooter>
     </Card>
   );

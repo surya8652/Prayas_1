@@ -56,7 +56,7 @@ export interface NotificationItem {
   id: string;
   title: string;
   message: string;
-  type: "collab" | "match" | "system";
+  type: "collab" | "match" | "system" | "announcement" | string;
   timestamp: string;
   read: boolean;
 }

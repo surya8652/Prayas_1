@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { Sparkles, BrainCircuit, ArrowRight, CheckCircle2 } from "lucide-react";
-import { Project, MatchCandidate } from "../types";
+import React from "react";
+import { Sparkles, BrainCircuit, ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
+import { Project } from "../types";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -13,53 +13,59 @@ interface Props {
 
 export const MatchingPage: React.FC<Props> = ({ projects, onTriggerMatch }) => {
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 text-left">
       {/* Overview Card */}
-      <div className="rounded-2xl border border-indigo-100 bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 p-6 dark:border-indigo-950 dark:from-indigo-950/40 dark:via-purple-950/40 dark:to-slate-900">
-        <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-md shadow-indigo-600/30">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-card">
+        <div className="flex flex-col sm:flex-row items-start gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-xs">
             <BrainCircuit className="h-6 w-6" />
           </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-slate-900 dark:text-white">
-                Explainable Researcher Matching Engine
+          <div className="space-y-1.5 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight font-heading">
+                Explainable Research Matching Engine
               </h1>
-              <Badge variant="success">Algorithm v1.0</Badge>
+              <Badge variant="teal">Algorithm v1.0</Badge>
             </div>
-            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl">
-              Unlike black-box recommendation systems, PRAYAS provides transparent mathematical scoring and natural language rationales. The model calculates exact skill overlap, research interest alignment, and cross-departmental collaboration synergy bonuses.
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-3xl">
+              Unlike opaque black-box recommendations, PRAYAS provides transparent mathematical scoring and natural language rationales. The model calculates exact skill overlap, research interest alignment, and cross-departmental collaboration synergy bonuses.
             </p>
           </div>
         </div>
 
-        {/* Scoring Formula visual */}
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-indigo-200/50 dark:border-indigo-900/50">
-          <div className="rounded-xl bg-white/80 p-4 shadow-xs dark:bg-slate-900/80">
-            <div className="text-xs font-semibold text-indigo-700 dark:text-indigo-400">45% Weight</div>
-            <div className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5">Required Skills Overlap</div>
-            <p className="text-[11px] text-slate-500 mt-1">Exact match ratio between project requisites and candidate technical skills.</p>
+        {/* Scoring Formula Visual */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 pt-6 border-t border-slate-100">
+          <div className="rounded-xl border border-slate-200/80 bg-slate-50 p-4">
+            <div className="text-xs font-bold text-indigo-700">45% Weight</div>
+            <div className="text-sm font-bold text-slate-900 mt-0.5">Required Skills Overlap</div>
+            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+              Exact match ratio between project requisites and candidate technical skills.
+            </p>
           </div>
-          <div className="rounded-xl bg-white/80 p-4 shadow-xs dark:bg-slate-900/80">
-            <div className="text-xs font-semibold text-purple-700 dark:text-purple-400">35% Weight</div>
-            <div className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5">Domain & Topic Alignment</div>
-            <p className="text-[11px] text-slate-500 mt-1">Intersection of project focus areas with faculty research keywords.</p>
+          <div className="rounded-xl border border-slate-200/80 bg-slate-50 p-4">
+            <div className="text-xs font-bold text-purple-700">35% Weight</div>
+            <div className="text-sm font-bold text-slate-900 mt-0.5">Domain & Topic Overlap</div>
+            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+              Intersection of project focus areas with faculty research keywords.
+            </p>
           </div>
-          <div className="rounded-xl bg-white/80 p-4 shadow-xs dark:bg-slate-900/80">
-            <div className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">20% Weight</div>
-            <div className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5">Interdisciplinary Synergy</div>
-            <p className="text-[11px] text-slate-500 mt-1">Cross-department bonus incentivizing college-wide collaboration.</p>
+          <div className="rounded-xl border border-slate-200/80 bg-slate-50 p-4">
+            <div className="text-xs font-bold text-teal-700">20% Weight</div>
+            <div className="text-sm font-bold text-slate-900 mt-0.5">Interdisciplinary Synergy</div>
+            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+              Cross-department bonus incentivizing college-wide collaboration.
+            </p>
           </div>
         </div>
       </div>
 
       {/* Select Project to run match */}
       <div>
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
-          Select a Target Project to Match
+        <h2 className="text-lg font-bold text-slate-900 mb-1">
+          Select Target Initiative to Run Matching
         </h2>
         <p className="text-xs text-slate-500 mb-4">
-          Click "Run Explainable Match" on any project below to compute real-time scores and candidate rationale.
+          Click "Run Explainable Match" on any initiative below to compute real-time scores and candidate rationale.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -72,14 +78,19 @@ export const MatchingPage: React.FC<Props> = ({ projects, onTriggerMatch }) => {
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-3">
+                <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">
                   {p.abstract}
                 </p>
                 <div>
-                  <span className="text-[11px] font-semibold text-slate-400 uppercase">Target Skills:</span>
+                  <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                    Target Skills:
+                  </span>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {p.required_skills.map((s, idx) => (
-                      <span key={idx} className="rounded bg-indigo-50 px-1.5 py-0.5 text-[10px] text-indigo-700 font-medium">
+                      <span
+                        key={idx}
+                        className="rounded-md border border-indigo-200 bg-indigo-50/60 px-1.5 py-0.5 text-[10px] text-indigo-700 font-semibold"
+                      >
                         {s}
                       </span>
                     ))}

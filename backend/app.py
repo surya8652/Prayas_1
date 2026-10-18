@@ -2,9 +2,20 @@ import os
 from flask import Flask, jsonify
 from backend.config import config_by_name
 from backend.extensions import db, cors
-from backend.routes import researchers_bp, projects_bp, collaborations_bp, matching_bp
+from backend.routes import (
+    researchers_bp,
+    projects_bp,
+    collaborations_bp,
+    matching_bp,
+    notifications_bp,
+    admin_bp,
+    auth_bp,
+    design_system_bp,
+)
 from backend.models.user import User
 from backend.models.project import Project
+from backend.models.collaboration import CollaborationRequest
+from backend.models.notification import Notification
 
 def seed_initial_data():
     """Seed prototype data if database is fresh."""
@@ -56,7 +67,18 @@ def seed_initial_data():
     r4.interests = ["IoT Sensors", "Signal Processing", "Smart Agriculture", "Embedded Systems"]
     r4.skills = ["Embedded C", "Python", "Signal Processing", "MATLAB", "Sensor Fusion"]
 
-    db.session.add_all([r1, r2, r3, r4])
+    r5 = User(
+        name="Dr. Marcus Vance",
+        email="marcus.vance@prayas.edu",
+        role="Faculty",
+        department="Mechanical & Aerospace Engineering",
+        designation="Assistant Professor",
+        bio="Researching bio-inspired autonomous robotic systems and cooperative multi-agent dynamics."
+    )
+    r5.interests = ["Autonomous Robotics", "Control Theory", "Kinematics", "Edge AI"]
+    r5.skills = ["Python", "ROS2", "C++", "Embedded C", "Optimization"]
+
+    db.session.add_all([r1, r2, r3, r4, r5])
     db.session.commit()
 
     # Seed demo projects
@@ -93,7 +115,67 @@ def seed_initial_data():
     p3.tags = ["IoT Sensors", "Smart Agriculture", "Signal Processing"]
     p3.required_skills = ["Embedded C", "Sensor Fusion", "Python"]
 
-    db.session.add_all([p1, p2, p3])
+    p4 = Project(
+        title="Robotic Surgical Teleoperation with Tactile Haptic Feedback and Edge AI",
+        abstract="Engineering low-latency force-feedback actuators paired with neural predictive filtering to assist surgeons in minimally invasive interventions.",
+        department="Mechanical & Aerospace Engineering",
+        lead_id=r5.id,
+        status="Recruiting",
+        open_positions=2
+    )
+    p4.tags = ["Autonomous Robotics", "Control Theory", "Healthcare AI", "Edge AI"]
+    p4.required_skills = ["C++", "ROS2", "Python", "Optimization"]
+
+    db.session.add_all([p1, p2, p3, p4])
+    db.session.commit()
+
+    # Seed collaboration requests
+    c1 = CollaborationRequest(
+        project_id=p1.id,
+        user_id=r1.id,
+        note="Excited to offer NLP and knowledge graph integration for genomic variant mapping.",
+        status="Accepted"
+    )
+    c2 = CollaborationRequest(
+        project_id=p2.id,
+        user_id=r3.id,
+        note="I have extensive experience with federated aggregation models and Docker orchestration.",
+        status="Pending"
+    )
+    c3 = CollaborationRequest(
+        project_id=p4.id,
+        user_id=r4.id,
+        note="Can contribute low-latency sensor fusion telemetry from embedded nodes.",
+        status="Pending"
+    )
+    db.session.add_all([c1, c2, c3])
+
+    # Seed notifications
+    n1 = Notification(
+        user_id=r1.id,
+        title="New Interdisciplinary Match",
+        message="Dr. Kavita Raman's Genomic project matches your expertise in Transformers & PyTorch (92% match score).",
+        type="match",
+        timestamp_str="10 mins ago",
+        read=False
+    )
+    n2 = Notification(
+        user_id=r1.id,
+        title="Collaboration Proposal Received",
+        message="Devansh Mehta requested to join 'Privacy-Preserving Collaborative Learning'.",
+        type="collab",
+        timestamp_str="2 hours ago",
+        read=False
+    )
+    n3 = Notification(
+        user_id=r1.id,
+        title="Institutional Grant Call",
+        message="Office of Sponsored Research announced $1.2M seed grants for cross-departmental AI-Biotech projects.",
+        type="announcement",
+        timestamp_str="1 day ago",
+        read=True
+    )
+    db.session.add_all([n1, n2, n3])
     db.session.commit()
 
 def create_app(config_name=None):
@@ -113,19 +195,27 @@ def create_app(config_name=None):
     app.register_blueprint(projects_bp)
     app.register_blueprint(collaborations_bp)
     app.register_blueprint(matching_bp)
+    app.register_blueprint(notifications_bp)
+    app.register_blueprint(admin_bp)
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(design_system_bp)
 
     @app.route("/")
     def index():
         return jsonify({
             "name": "PRAYAS Backend API",
-            "tagline": "Research Coordination and Collaboration Platform",
+            "tagline": "Academic Research Collaboration Platform",
             "version": "1.0.0",
             "status": "operational",
             "endpoints": [
                 "/api/researchers",
                 "/api/projects",
                 "/api/collaborations",
-                "/api/matching/project/<id>"
+                "/api/matching/project/<id>",
+                "/api/notifications",
+                "/api/admin/overview",
+                "/api/auth/login",
+                "/api/design-system"
             ]
         }), 200
 

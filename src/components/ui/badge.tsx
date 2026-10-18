@@ -7,12 +7,16 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-transparent bg-indigo-600 text-white shadow hover:bg-indigo-700",
-        secondary: "border-transparent bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-100",
-        destructive: "border-transparent bg-rose-500 text-white shadow hover:bg-rose-600",
-        outline: "text-slate-800 border-slate-300 dark:text-slate-200 dark:border-slate-700",
-        success: "border-emerald-200 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800",
-        accent: "border-indigo-200 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300 dark:border-indigo-800",
+        default: "border-transparent bg-indigo-600 text-white shadow-xs hover:bg-indigo-700",
+        secondary: "border-slate-200 bg-slate-100 text-slate-800",
+        destructive: "border-rose-200 bg-rose-50 text-rose-700",
+        outline: "text-slate-700 border-slate-300 bg-white",
+        success: "border-emerald-200 bg-emerald-50 text-emerald-800",
+        teal: "border-teal-200 bg-teal-50 text-teal-800 font-medium",
+        synergy: "border-teal-300/80 bg-teal-50 text-teal-800 font-medium",
+        accent: "border-indigo-200 bg-indigo-50 text-indigo-700",
+        warning: "border-amber-200 bg-amber-50 text-amber-800",
+        navy: "border-slate-800 bg-slate-900 text-white",
       },
     },
     defaultVariants: {

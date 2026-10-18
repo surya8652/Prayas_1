@@ -8,11 +8,10 @@ interface Props {
 
 export const DepartmentBadge: React.FC<Props> = ({ department, className }) => {
   return (
-    <Badge
-      variant="outline"
-      className={`border-indigo-200 bg-indigo-50/70 text-indigo-700 font-medium dark:border-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300 ${className || ""}`}
+    <span
+      className={`inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-slate-700 ${className || ""}`}
     >
       {department}
-    </Badge>
+    </span>
   );
 };
