@@ -12,14 +12,16 @@ import { DepartmentBadge } from "../components/common/DepartmentBadge";
 
 interface Props {
   researchers: Researcher[];
-  onFindMatches?: (r: Researcher) => void;
+  onFindMatches?: (r?: Researcher) => void;
   onRequestCollab?: (r: Researcher) => void;
+  onViewProfile?: (r: Researcher) => void;
 }
 
 export const ResearchersPage: React.FC<Props> = ({
   researchers,
   onFindMatches,
   onRequestCollab,
+  onViewProfile,
 }) => {
   const [search, setSearch] = useState("");
   const [selectedDept, setSelectedDept] = useState<string>("All");
@@ -133,7 +135,7 @@ export const ResearchersPage: React.FC<Props> = ({
               key={r.id}
               researcher={r}
               onFindMatches={onFindMatches}
-              onViewProfile={(researcher) => setSelectedProfile(researcher)}
+              onViewProfile={onViewProfile ?? ((researcher) => setSelectedProfile(researcher))}
             />
           ))}
         </div>
@@ -183,7 +185,7 @@ export const ResearchersPage: React.FC<Props> = ({
                       variant="ghost"
                       size="sm"
                       className="text-xs text-indigo-600"
-                      onClick={() => setSelectedProfile(r)}
+                      onClick={() => onViewProfile ? onViewProfile(r) : setSelectedProfile(r)}
                     >
                       Profile
                     </Button>

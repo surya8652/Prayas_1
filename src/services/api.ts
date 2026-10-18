@@ -11,9 +11,14 @@ export async function checkBackendHealth() {
   }
 }
 
-export async function fetchResearchers() {
+export async function fetchResearchers(params?: { department?: string; role?: string; q?: string }) {
   try {
-    const res = await fetch(`${API_BASE}/researchers`);
+    const query = new URLSearchParams();
+    if (params?.department) query.set("department", params.department);
+    if (params?.role) query.set("role", params.role);
+    if (params?.q) query.set("q", params.q);
+    const url = `${API_BASE}/researchers${query.toString() ? "?" + query.toString() : ""}`;
+    const res = await fetch(url);
     if (!res.ok) throw new Error("Failed to fetch researchers");
     return await res.json();
   } catch {
@@ -57,6 +62,26 @@ export async function fetchProjectMatches(projectId: number) {
     return data.matches || [];
   } catch {
     return [];
+  }
+}
+
+export async function fetchResearcherProfile(userId: number) {
+  try {
+    const res = await fetch(`${API_BASE}/researchers/${userId}`);
+    if (!res.ok) throw new Error("Failed to fetch researcher profile");
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchResearcherStats() {
+  try {
+    const res = await fetch(`${API_BASE}/researchers/stats`);
+    if (!res.ok) throw new Error("Failed to fetch researcher stats");
+    return await res.json();
+  } catch {
+    return null;
   }
 }
 

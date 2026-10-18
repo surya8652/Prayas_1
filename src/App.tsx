@@ -5,6 +5,7 @@ import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ResearchersPage } from "./pages/ResearchersPage";
+import { ResearcherProfilePage } from "./pages/ResearcherProfilePage";
 import { ProjectsPage } from "./pages/ProjectsPage";
 import { MatchingPage } from "./pages/MatchingPage";
 import { RequestsPage } from "./pages/RequestsPage";
@@ -22,6 +23,7 @@ export function App() {
   const [matches, setMatches] = useState<MatchCandidate[]>([]);
   const [isMatchingLoading, setIsMatchingLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState<{ type: "success" | "info"; text: string } | null>(null);
+  const [viewingResearcherId, setViewingResearcherId] = useState<number | null>(null);
 
   const {
     researchers,
@@ -158,13 +160,25 @@ export function App() {
       )}
 
       {activeTab === "researchers" && (
-        <ResearchersPage
-          researchers={researchers}
-          onFindMatches={() => setActiveTab("matching")}
-          onRequestCollab={(r) => {
-            showToast(`Contact initiated with ${r.name}`);
-          }}
-        />
+        viewingResearcherId ? (
+          <ResearcherProfilePage
+            researcherId={viewingResearcherId}
+            onBack={() => setViewingResearcherId(null)}
+            onFindMatches={() => {
+              setViewingResearcherId(null);
+              setActiveTab("matching");
+            }}
+          />
+        ) : (
+          <ResearchersPage
+            researchers={researchers}
+            onFindMatches={() => setActiveTab("matching")}
+            onRequestCollab={(r) => {
+              showToast(`Contact initiated with ${r.name}`);
+            }}
+            onViewProfile={(r) => setViewingResearcherId(r.id)}
+          />
+        )
       )}
 
       {activeTab === "projects" && (

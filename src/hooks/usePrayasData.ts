@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Researcher, Project, NotificationItem } from "../types";
-import { fetchResearchers, fetchProjects } from "../services/api";
+import { fetchResearchers, fetchProjects, fetchNotifications, checkBackendHealth } from "../services/api";
 import { initialNotifications } from "../data/mockData";
 
 export function usePrayasData() {
@@ -12,31 +12,48 @@ export function usePrayasData() {
 
   useEffect(() => {
     let mounted = true;
+
     async function load() {
+      // Check backend health first
+      const isHealthy = await checkBackendHealth();
+      if (mounted) setBackendConnected(isHealthy);
+
       try {
         const [rData, pData] = await Promise.all([
           fetchResearchers(),
-          fetchProjects()
+          fetchProjects(),
         ]);
         if (mounted) {
           setResearchers(rData);
           setProjects(pData);
         }
       } catch (e) {
-        console.error(e);
-      } finally {
-        if (mounted) setIsLoading(false);
+        console.error("Failed to load researchers/projects:", e);
       }
 
-      // Check backend health
-      try {
-        const res = await fetch("http://localhost:5000/api/health");
-        if (mounted && res.ok) {
-          setBackendConnected(true);
+      // Load notifications from backend if available
+      if (isHealthy) {
+        try {
+          const nData = await fetchNotifications();
+          if (mounted && nData && nData.length > 0) {
+            // Normalize backend notification shape to frontend NotificationItem
+            const normalized: NotificationItem[] = nData.map((n: any) => ({
+              id: n.id ?? `notif-${n.db_id}`,
+              title: n.title,
+              message: n.message,
+              type: n.type as NotificationItem["type"],
+              timestamp: n.timestamp ?? n.timestamp_str ?? "Just now",
+              read: n.read ?? false,
+            }));
+            setNotifications(normalized);
+          }
+        } catch (e) {
+          console.error("Failed to load notifications:", e);
+          // Keep mock data as fallback
         }
-      } catch {
-        if (mounted) setBackendConnected(false);
       }
+
+      if (mounted) setIsLoading(false);
     }
 
     load();
@@ -56,3 +73,4 @@ export function usePrayasData() {
     setResearchers,
   };
 }
+
