@@ -11,6 +11,7 @@ from backend.routes import (
     admin_bp,
     auth_bp,
     profile_bp,
+    dashboard_bp,
     design_system_bp,
 )
 from backend.models.user import User
@@ -303,6 +304,7 @@ def create_app(config_name=None):
     app.register_blueprint(admin_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(profile_bp)
+    app.register_blueprint(dashboard_bp)
     app.register_blueprint(design_system_bp)
 
     @app.route("/")

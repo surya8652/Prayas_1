@@ -1,5 +1,17 @@
-import React from "react";
-import { Bell, Sparkles, Network, Menu, ExternalLink, LogOut, ShieldCheck } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import {
+  Bell,
+  Sparkles,
+  Network,
+  Menu,
+  ExternalLink,
+  LogOut,
+  Search,
+  UserCheck,
+  Settings,
+  User,
+  ChevronDown,
+} from "lucide-react";
 import { Button } from "../ui/button";
 
 interface Props {
@@ -12,6 +24,9 @@ interface Props {
   onSelectRole?: (role: string) => void;
   currentUser?: any;
   onLogout?: () => void;
+  onNavigateProfile?: () => void;
+  onNavigateOnboarding?: () => void;
+  onSearch?: (q: string) => void;
 }
 
 export const Navbar: React.FC<Props> = ({
@@ -24,7 +39,14 @@ export const Navbar: React.FC<Props> = ({
   onSelectRole,
   currentUser,
   onLogout,
+  onNavigateProfile,
+  onNavigateOnboarding,
+  onSearch,
 }) => {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   const displayName = currentUser?.full_name || currentUser?.name || "Dr. Aris Thorne";
   const displayRole = currentUser?.role || activeRole;
   const displayDept = currentUser?.department || "Computer Science";
@@ -34,11 +56,30 @@ export const Navbar: React.FC<Props> = ({
     .slice(0, 2)
     .map((w: string) => w[0].toUpperCase())
     .join("");
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (onSearch) {
+      onSearch(searchQuery);
+    }
+  };
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white shadow-subtle">
-      <div className="flex h-16 items-center justify-between px-4 sm:px-6">
+      <div className="flex h-16 items-center justify-between px-3 sm:px-6 gap-2 sm:gap-4">
         {/* Brand & Mobile Toggle */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {onToggleMobileSidebar && (
             <button
               onClick={onToggleMobileSidebar}
@@ -72,38 +113,39 @@ export const Navbar: React.FC<Props> = ({
           </div>
         </div>
 
+        {/* Global Search Field */}
+        <div className="flex-1 max-w-md hidden sm:block">
+          <form onSubmit={handleSearchSubmit} className="relative">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search researchers, projects, grants, topics..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-9 pl-9 pr-3 rounded-lg border border-slate-200 bg-slate-50 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:bg-white transition-all"
+            />
+          </form>
+        </div>
+
         {/* Global Controls & Status */}
-        <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-3">
           {/* Backend Status indicator */}
-          <div className="hidden lg:flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50/80 px-3 py-1 text-xs text-slate-600">
+          <div className="hidden lg:flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50/80 px-2.5 py-1 text-xs text-slate-600">
             <span
               className={`h-2 w-2 rounded-full ${
                 backendConnected ? "bg-teal-600" : "bg-amber-400"
               }`}
             />
-            <span className="font-medium">
-              {backendConnected ? "Python Backend Connected" : "Local Standalone Mode"}
+            <span className="text-[11px] font-medium">
+              {backendConnected ? "Python Connected" : "Local Mode"}
             </span>
           </div>
-
-          {/* Public Portal Switcher */}
-          {onNavigateLanding && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="hidden sm:inline-flex text-xs text-slate-600 hover:text-indigo-600 gap-1.5"
-              onClick={onNavigateLanding}
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-              Public Portal
-            </Button>
-          )}
 
           {/* Notifications Button */}
           <Button
             variant="ghost"
             size="icon"
-            className="relative text-slate-600 hover:text-slate-900"
+            className="relative text-slate-600 hover:text-slate-900 h-9 w-9"
             onClick={onOpenNotifications}
             aria-label="View notifications"
           >
@@ -115,29 +157,92 @@ export const Navbar: React.FC<Props> = ({
             )}
           </Button>
 
-          {/* User Profile Info & Logout */}
-          <div className="flex items-center gap-2.5 pl-2 border-l border-slate-200">
-            <div className="h-8 w-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-xs">
-              {initials || "U"}
-            </div>
-            <div className="hidden md:block text-left text-xs">
-              <div className="font-semibold text-slate-900 leading-tight truncate max-w-[140px]">
-                {displayName}
+          {/* User Avatar with Account Dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none"
+            >
+              <div className="h-8 w-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-xs">
+                {initials || "U"}
               </div>
-              <div className="text-[11px] text-slate-500 font-medium truncate max-w-[140px]">
-                {displayRole} • {displayDept}
+              <div className="hidden md:block text-left text-xs">
+                <div className="font-semibold text-slate-900 leading-tight truncate max-w-[120px]">
+                  {displayName}
+                </div>
+                <div className="text-[10px] text-slate-500 font-medium truncate max-w-[120px]">
+                  {displayRole}
+                </div>
               </div>
-            </div>
-            {onLogout && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onLogout}
-                className="h-8 w-8 text-slate-500 hover:text-rose-600 hover:bg-rose-50"
-                title="Sign out of PRAYAS"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
+              <ChevronDown className="h-3.5 w-3.5 text-slate-400 hidden md:block" />
+            </button>
+
+            {/* Dropdown Menu */}
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-modal z-50 animate-in fade-in zoom-in-95 duration-100 text-left">
+                {/* Header in dropdown */}
+                <div className="p-2 border-b border-slate-100">
+                  <div className="font-bold text-xs text-slate-900">{displayName}</div>
+                  <div className="text-[11px] text-slate-500 truncate">{currentUser?.email || "academic@prayas.edu"}</div>
+                  <div className="text-[11px] text-indigo-700 font-medium mt-0.5">{displayDept}</div>
+                </div>
+
+                <div className="py-1 text-xs">
+                  {onNavigateProfile && (
+                    <button
+                      onClick={() => {
+                        setDropdownOpen(false);
+                        onNavigateProfile();
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
+                    >
+                      <User className="h-4 w-4 text-slate-400" />
+                      <span>My Profile</span>
+                    </button>
+                  )}
+
+                  {onNavigateOnboarding && (
+                    <button
+                      onClick={() => {
+                        setDropdownOpen(false);
+                        onNavigateOnboarding();
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
+                    >
+                      <Sparkles className="h-4 w-4 text-teal-600" />
+                      <span>Complete / Edit Profile</span>
+                    </button>
+                  )}
+
+                  {onNavigateLanding && (
+                    <button
+                      onClick={() => {
+                        setDropdownOpen(false);
+                        onNavigateLanding();
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
+                    >
+                      <ExternalLink className="h-4 w-4 text-slate-400" />
+                      <span>Public Portal</span>
+                    </button>
+                  )}
+                </div>
+
+                {onLogout && (
+                  <div className="pt-1 border-t border-slate-100">
+                    <button
+                      onClick={() => {
+                        setDropdownOpen(false);
+                        onLogout();
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-rose-600 hover:bg-rose-50 font-semibold text-xs transition-colors"
+                    >
+                      <LogOut className="h-4 w-4 text-rose-500" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>

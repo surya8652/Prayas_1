@@ -13,6 +13,7 @@ interface Props {
   pendingRequestsCount?: number;
   currentUser?: any;
   onLogout?: () => void;
+  onSearch?: (q: string) => void;
   children: React.ReactNode;
 }
 
@@ -22,13 +23,15 @@ export const MainLayout: React.FC<Props> = ({
   notifications,
   onMarkAllRead,
   backendConnected,
-  pendingRequestsCount = 2,
+  pendingRequestsCount = 0,
   currentUser,
   onLogout,
+  onSearch,
   children,
 }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
@@ -41,6 +44,9 @@ export const MainLayout: React.FC<Props> = ({
         onToggleMobileSidebar={() => setMobileSidebarOpen((prev) => !prev)}
         currentUser={currentUser}
         onLogout={onLogout}
+        onNavigateProfile={() => onSelectTab("profile")}
+        onNavigateOnboarding={() => onSelectTab("onboarding")}
+        onSearch={onSearch}
       />
 
       <div className="flex flex-1">
@@ -51,6 +57,9 @@ export const MainLayout: React.FC<Props> = ({
           unreadNotifsCount={unreadCount}
           isOpenMobile={mobileSidebarOpen}
           onCloseMobile={() => setMobileSidebarOpen(false)}
+          currentUser={currentUser}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed((prev) => !prev)}
         />
 
         <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 transition-all">

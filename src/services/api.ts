@@ -376,3 +376,64 @@ export async function updateUserProfile(profileData: any) {
   return data;
 }
 
+export async function fetchDashboardSummary() {
+  const res = await fetch(`${API_BASE}/dashboard/summary`, {
+    method: "GET",
+    credentials: "include",
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || "Failed to load dashboard summary");
+  }
+  return await res.json();
+}
+
+export async function fetchDashboardRecommendations(limit: number = 6) {
+  const res = await fetch(`${API_BASE}/dashboard/recommendations?limit=${limit}`, {
+    method: "GET",
+    credentials: "include",
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || "Failed to load recommendations");
+  }
+  return await res.json();
+}
+
+export async function fetchDashboardProjects(limit: number = 6) {
+  const res = await fetch(`${API_BASE}/dashboard/projects?limit=${limit}`, {
+    method: "GET",
+    credentials: "include",
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || "Failed to load dashboard projects");
+  }
+  return await res.json();
+}
+
+export async function fetchDashboardRequests(limit: number = 6) {
+  const res = await fetch(`${API_BASE}/dashboard/requests?limit=${limit}`, {
+    method: "GET",
+    credentials: "include",
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || "Failed to load collaboration requests");
+  }
+  return await res.json();
+}
+
+export async function fetchDashboardActivity() {
+  const res = await fetch(`${API_BASE}/dashboard/activity`, {
+    method: "GET",
+    credentials: "include",
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || "Failed to load recent activity");
+  }
+  return await res.json();
+}
+
+

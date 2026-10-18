@@ -219,11 +219,14 @@ export function App() {
 
       {activeTab === "dashboard" && (
         <DashboardPage
-          researchers={researchers}
-          projects={projects}
+          currentUser={currentUser}
           onNavigate={(tab) => setActiveTab(tab)}
           onSelectProjectForMatch={handleOpenMatching}
           onRequestCollaboration={handleRequestCollaboration}
+          onViewResearcherProfile={(id) => {
+            setViewingResearcherId(id);
+            setActiveTab("researchers");
+          }}
         />
       )}
 
@@ -313,6 +316,14 @@ export function App() {
             ))}
           </div>
         </div>
+      )}
+
+      {activeTab === "profile" && (
+        <ResearcherProfilePage
+          researcherId={currentUser?.id || 1}
+          onBack={() => setActiveTab("dashboard")}
+          onFindMatches={() => setActiveTab("matching")}
+        />
       )}
 
       {activeTab === "admin" && <AdminDashboardPage />}
