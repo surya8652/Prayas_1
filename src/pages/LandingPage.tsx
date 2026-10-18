@@ -21,12 +21,14 @@ interface Props {
   onEnterApp: () => void;
   onGoLogin: () => void;
   onGoDesignSystem: () => void;
+  onGoRegister?: () => void;
 }
 
 export const LandingPage: React.FC<Props> = ({
   onEnterApp,
   onGoLogin,
   onGoDesignSystem,
+  onGoRegister,
 }) => {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
@@ -56,6 +58,16 @@ export const LandingPage: React.FC<Props> = ({
             >
               Design System
             </Button>
+            {onGoRegister && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onGoRegister}
+                className="text-xs font-semibold text-indigo-600 hover:text-indigo-700"
+              >
+                Register
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"

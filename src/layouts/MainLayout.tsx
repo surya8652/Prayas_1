@@ -11,6 +11,8 @@ interface Props {
   onMarkAllRead: () => void;
   backendConnected: boolean;
   pendingRequestsCount?: number;
+  currentUser?: any;
+  onLogout?: () => void;
   children: React.ReactNode;
 }
 
@@ -21,6 +23,8 @@ export const MainLayout: React.FC<Props> = ({
   onMarkAllRead,
   backendConnected,
   pendingRequestsCount = 2,
+  currentUser,
+  onLogout,
   children,
 }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -35,6 +39,8 @@ export const MainLayout: React.FC<Props> = ({
         backendConnected={backendConnected}
         onNavigateLanding={() => onSelectTab("landing")}
         onToggleMobileSidebar={() => setMobileSidebarOpen((prev) => !prev)}
+        currentUser={currentUser}
+        onLogout={onLogout}
       />
 
       <div className="flex flex-1">

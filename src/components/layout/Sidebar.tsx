@@ -23,7 +23,9 @@ export type NavTab =
   | "admin"
   | "design-system"
   | "landing"
-  | "login";
+  | "login"
+  | "register"
+  | "onboarding";
 
 interface Props {
   activeTab: NavTab;

@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MainLayout } from "./layouts/MainLayout";
 import { NavTab } from "./components/layout/Sidebar";
 import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
+import { RegisterPage } from "./pages/RegisterPage";
+import { OnboardingPage } from "./pages/OnboardingPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ResearchersPage } from "./pages/ResearchersPage";
 import { ResearcherProfilePage } from "./pages/ResearcherProfilePage";
@@ -15,15 +17,44 @@ import { MatchingScoreModal } from "./components/matching/MatchingScoreModal";
 import { Alert } from "./components/ui/alert";
 import { usePrayasData } from "./hooks/usePrayasData";
 import { Project, Researcher, MatchCandidate } from "./types";
-import { fetchProjectMatches, submitCollaborationRequest, markAllNotificationsReadApi } from "./services/api";
+import {
+  fetchProjectMatches,
+  submitCollaborationRequest,
+  markAllNotificationsReadApi,
+  fetchCurrentUser,
+  logoutUser,
+} from "./services/api";
 
 export function App() {
   const [activeTab, setActiveTab] = useState<NavTab>("dashboard");
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [matches, setMatches] = useState<MatchCandidate[]>([]);
   const [isMatchingLoading, setIsMatchingLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState<{ type: "success" | "info"; text: string } | null>(null);
   const [viewingResearcherId, setViewingResearcherId] = useState<number | null>(null);
+
+  // Restore authenticated session after refreshing browser
+  useEffect(() => {
+    async function restoreSession() {
+      try {
+        const user = await fetchCurrentUser();
+        if (user) {
+          setCurrentUser(user);
+        }
+      } catch {
+        // Unauthenticated or backend not ready
+      }
+    }
+    restoreSession();
+  }, []);
+
+  const handleLogout = async () => {
+    await logoutUser();
+    setCurrentUser(null);
+    showToast("Signed out of PRAYAS session", "info");
+    setActiveTab("landing");
+  };
 
   const {
     researchers,
@@ -109,9 +140,38 @@ export function App() {
   if (activeTab === "landing") {
     return (
       <LandingPage
-        onEnterApp={() => setActiveTab("dashboard")}
+        onEnterApp={() => setActiveTab(currentUser ? "dashboard" : "login")}
         onGoLogin={() => setActiveTab("login")}
+        onGoRegister={() => setActiveTab("register")}
         onGoDesignSystem={() => setActiveTab("design-system")}
+      />
+    );
+  }
+
+  if (activeTab === "register") {
+    return (
+      <RegisterPage
+        onSuccessRegister={(user) => {
+          setCurrentUser(user);
+          showToast(`Account created for ${user.full_name || user.name}!`);
+          setActiveTab("onboarding");
+        }}
+        onGoLogin={() => setActiveTab("login")}
+        onGoHome={() => setActiveTab("landing")}
+      />
+    );
+  }
+
+  if (activeTab === "onboarding") {
+    return (
+      <OnboardingPage
+        currentUser={currentUser}
+        onFinishOnboarding={(user) => {
+          setCurrentUser(user);
+          showToast("Profile onboarded successfully!");
+          setActiveTab("dashboard");
+        }}
+        onSkip={() => setActiveTab("dashboard")}
       />
     );
   }
@@ -120,10 +180,16 @@ export function App() {
     return (
       <LoginPage
         onSuccessLogin={(user) => {
-          showToast(`Signed in as ${user.name}`);
-          setActiveTab("dashboard");
+          setCurrentUser(user);
+          showToast(`Signed in as ${user.full_name || user.name}`);
+          if (user.profile_completed === false) {
+            setActiveTab("onboarding");
+          } else {
+            setActiveTab("dashboard");
+          }
         }}
         onGoHome={() => setActiveTab("landing")}
+        onGoRegister={() => setActiveTab("register")}
       />
     );
   }
@@ -136,6 +202,8 @@ export function App() {
       notifications={notifications}
       onMarkAllRead={handleMarkAllRead}
       backendConnected={backendConnected}
+      currentUser={currentUser}
+      onLogout={handleLogout}
     >
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 max-w-sm animate-in slide-in-from-bottom duration-200">

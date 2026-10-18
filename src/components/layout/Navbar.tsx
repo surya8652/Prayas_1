@@ -10,6 +10,8 @@ interface Props {
   onToggleMobileSidebar?: () => void;
   activeRole?: string;
   onSelectRole?: (role: string) => void;
+  currentUser?: any;
+  onLogout?: () => void;
 }
 
 export const Navbar: React.FC<Props> = ({
@@ -20,7 +22,18 @@ export const Navbar: React.FC<Props> = ({
   onToggleMobileSidebar,
   activeRole = "Faculty",
   onSelectRole,
+  currentUser,
+  onLogout,
 }) => {
+  const displayName = currentUser?.full_name || currentUser?.name || "Dr. Aris Thorne";
+  const displayRole = currentUser?.role || activeRole;
+  const displayDept = currentUser?.department || "Computer Science";
+  const initials = displayName
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w: string) => w[0].toUpperCase())
+    .join("");
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white shadow-subtle">
       <div className="flex h-16 items-center justify-between px-4 sm:px-6">
@@ -102,17 +115,30 @@ export const Navbar: React.FC<Props> = ({
             )}
           </Button>
 
-          {/* User Profile Info */}
+          {/* User Profile Info & Logout */}
           <div className="flex items-center gap-2.5 pl-2 border-l border-slate-200">
             <div className="h-8 w-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-xs">
-              AT
+              {initials || "U"}
             </div>
             <div className="hidden md:block text-left text-xs">
-              <div className="font-semibold text-slate-900 leading-tight">Dr. Aris Thorne</div>
-              <div className="text-[11px] text-slate-500 font-medium">
-                {activeRole} • Computer Science
+              <div className="font-semibold text-slate-900 leading-tight truncate max-w-[140px]">
+                {displayName}
+              </div>
+              <div className="text-[11px] text-slate-500 font-medium truncate max-w-[140px]">
+                {displayRole} • {displayDept}
               </div>
             </div>
+            {onLogout && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onLogout}
+                className="h-8 w-8 text-slate-500 hover:text-rose-600 hover:bg-rose-50"
+                title="Sign out of PRAYAS"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
       </div>

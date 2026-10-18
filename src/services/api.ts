@@ -289,25 +289,90 @@ export async function fetchDesignSystemTokens() {
   }
 }
 
-export async function loginUser(email: string, role: string) {
+export async function registerUser(data: {
+  full_name: string;
+  email: string;
+  password: string;
+  confirm_password?: string;
+  department: string;
+  role: string;
+}) {
+  const res = await fetch(`${API_BASE}/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(data),
+  });
+  const resData = await res.json();
+  if (!res.ok) {
+    throw new Error(resData.error || "Registration failed. Please check your information.");
+  }
+  return resData;
+}
+
+export async function loginUser(email: string, password: string) {
+  const res = await fetch(`${API_BASE}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ email, password }),
+  });
+  const resData = await res.json();
+  if (!res.ok) {
+    throw new Error(resData.error || "Invalid credentials. Please try again.");
+  }
+  return resData;
+}
+
+export async function logoutUser() {
   try {
-    const res = await fetch(`${API_BASE}/auth/login`, {
+    const res = await fetch(`${API_BASE}/auth/logout`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, role }),
+      credentials: "include",
     });
-    if (!res.ok) throw new Error("Login failed");
-    return await res.json();
+    return res.ok;
   } catch {
-    return {
-      token: "demo_token",
-      user: {
-        id: 1,
-        name: "Dr. Aris Thorne",
-        email: email || "aris.thorne@prayas.edu",
-        role: role || "Faculty",
-        department: "Computer Science & Engineering",
-      },
-    };
+    return false;
   }
 }
+
+export async function fetchCurrentUser() {
+  try {
+    const res = await fetch(`${API_BASE}/auth/me`, {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.user || null;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchUserProfile() {
+  const res = await fetch(`${API_BASE}/profile`, {
+    method: "GET",
+    credentials: "include",
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || "Failed to fetch user profile");
+  }
+  return await res.json();
+}
+
+export async function updateUserProfile(profileData: any) {
+  const res = await fetch(`${API_BASE}/profile`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(profileData),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to update profile");
+  }
+  return data;
+}
+
